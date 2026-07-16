@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>대학혁신지원사업 관리 지침 및 가이드라인</title>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: #f4f6f8;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        .header {
+            background-color: #1a365d;
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .header p {
+            margin: 10px 0 0;
+            color: #a0aec0;
+            font-size: 15px;
+        }
+        .container {
+            display: flex;
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+            gap: 30px;
+            align-items: flex-start;
+        }
+        .sidebar {
+            width: 250px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 20px;
+            flex-shrink: 0;
+        }
+        .sidebar h3 {
+            margin-top: 0;
+            font-size: 16px;
+            color: #4a5568;
+            border-bottom: 2px solid #edf2f7;
+            padding-bottom: 10px;
+        }
+        .filter-btn {
+            display: block;
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 14px;
+            color: #4a5568;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        .filter-btn:hover {
+            background: #edf2f7;
+        }
+        .filter-btn.active {
+            background: #ebf8ff;
+            color: #3182ce;
+            font-weight: 600;
+        }
+        
+        .edit-guide-box {
+            margin-top: 20px;
+            background-color: #ebf8ff;
+            border: 1px solid #bee3f8;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 13px;
+            color: #2c5282;
+        }
+        .edit-guide-box h4 {
+            margin: 0 0 8px 0;
+            font-size: 14px;
+            color: #2b6cb0;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .edit-guide-box p { margin: 0; line-height: 1.5; }
+        
+        .content {
+            flex: 1;
+            display: grid;
+            gap: 20px;
+            min-width: 0;
+        }
+        .card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-left: 4px solid #3182ce;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0;
+            color: #2d3748;
+        }
+        .tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .tag {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .tag.type-규정 { background-color: #feebc8; color: #c05621; }
+        .tag.type-지침 { background-color: #c6f6d5; color: #22543d; }
+        .tag.type-가이드 { background-color: #e9d8fd; color: #44337a; }
+        .tag.category { background-color: #edf2f7; color: #4a5568; }
+        .summary {
+            color: #4a5568;
+            font-size: 15px;
+            margin: 0 0 15px 0;
+            flex-grow: 1;
+        }
+        .meta {
+            font-size: 13px;
+            color: #718096;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #edf2f7;
+            padding-top: 15px;
+        }
+        
+        .card-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-toggle {
+            background-color: #3182ce;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 600;
+            min-width: 60px;
+        }
+        .btn-toggle:hover {
+            background-color: #2b6cb0;
+        }
+        .btn-print {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            background-color: #edf2f7;
+            color: #4a5568;
+            border: 1px solid #cbd5e0;
+            padding: 7px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-print:hover {
+            background-color: #e2e8f0;
+        }
+        .btn-print svg { width: 14px; height: 14px; }
+        
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+            background: white;
+            border-radius: 12px;
+            display: none;
+        }
+        
+        .full-text-container {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            border-top: 1px dashed #e2e8f0;
+            font-size: 14px;
+            color: #2d3748;
+            line-height: 1.8;
+            font-family: 'Pretendard', sans-serif;
+            background-color: #fafbfc;
+            border-radius: 8px;
+        }
+        .full-text-container.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        /* Strict removal of empty line layout for specific text block if pre-wrap is used */
+        .full-text-container h3, .full-text-container p, .full-text-container ul {
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+        .full-text-container ul {
+            padding-left: 20px;
+            margin-bottom: 12px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media print {
+            body.printing-card * {
+                visibility: hidden;
+            }
+            body.printing-card .print-target, 
+            body.printing-card .print-target * {
+                visibility: visible;
+            }
+            body.printing-card .print-target {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 20px;
+                box-shadow: none;
+                border: none;
+            }
+            body.printing-card .print-target .full-text-container {
+                display: block !important;
+                border-top: 2px solid #000;
+                margin-top: 20px;
+                background-color: transparent;
+                padding: 20px 0;
+            }
+            .card-actions, .sidebar, .header, .edit-guide-box {
+                display: none !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container { flex-direction: column; }
+            .sidebar { width: 100%; position: static; box-sizing: border-box; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>대학혁신지원사업 규정 및 지침</h1>
+        <p>나사렛대학교 대학혁신지원사업단 관련 통합 데이터베이스</p>
+    </div>
+
+    <div class="container">
+        <div class="sidebar">
+            <h3>대분류 필터</h3>
+            <button class="filter-btn active" data-filter="all">전체 보기</button>
+            <button class="filter-btn" data-filter="사업비 관리 지침">사업비 관리 지침 (규정/별표3)</button>
+            <button class="filter-btn" data-filter="지출 증빙 가이드라인">지출 증빙 가이드 (항목별)</button>
+            <button class="filter-btn" data-filter="결재 협조라인">결재 협조라인</button>
+
+            <div class="edit-guide-box">
+                <h4>💡 내용 수정 안내</h4>
+                <p>본 페이지의 <strong>규정 및 지침 원문 내용을 수정</strong>하시려면 아래 방법을 참고해 주세요.</p>
+                <br>
+                <p>1. 다운로드한 <strong>HTML 파일</strong>을 우클릭하여 메모장이나 코드 에디터로 엽니다.</p>
+                <p>2. 소스 코드에서 수정하려는 문서의 제목을 찾은 뒤, <code>&lt;div class="full-text-container"&gt;</code> 와 <code>&lt;/div&gt;</code> 사이의 텍스트를 편집하고 저장하시면 즉시 반영됩니다.</p>
+            </div>
+        </div>
+
+        <div class="content" id="docList">
+            
+            <!-- ================= 1. 사업비 관리 지침 ================= -->
+            
+            <div class="card" data-category="사업비 관리 지침">
+                <div class="card-header">
+                    <h2 class="card-title">대학혁신지원사업 사업비 관리 지침 (총칙 및 비목별 집행기준)</h2>
+                    <div class="tags">
+                        <span class="tag type-규정">지침</span>
+                        <span class="tag category">사업비 관리 지침</span>
+                    </div>
+                </div>
+                <p class="summary">대학혁신지원사업비의 목적, 기본원칙, 사업비 집행/정산 절차(총칙) 및 교육/연구/기자재 등 비목별 세부 집행기준(제2장)입니다.</p>
+                <div class="meta">
+                    <span><strong>최종개정일:</strong> 2026.03.05</span>
+                    <div class="card-actions">
+                        <button class="btn-print" onclick="printCard(this)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                                <rect x="6" y="14" width="12" height="8"></rect>
+                            </svg> 인쇄
+                        </button>
+                        <button class="btn-toggle" onclick="toggleText(this)">보기</button>
+                    </div>
+                </div>
+                <div class="full-text-container"><h3>대학혁신지원사업 사업비 관리 지침 (총칙 및 비목별 집행기준)</h3>
+<p><strong>최종개정일자:</strong> 2026.03.05.</p>
+<h4>[제1장 총칙]</h4>
+<p><strong>- 목적:</strong> 대학혁신지원사업 기본/사업계획에 따라 예산편성 및 집행 세부기준 정립.</p>
+<p><strong>- 원칙:</strong> 국고지원금 별도 계정 설치, 총괄 관리(사업단) 및 협조(기획조정실, 행정혁신처).</p>
+<p><strong>- 집행/정산:</strong> 사전 기안문 품의 및 결재 필수. 지출은 법인카드 사용 또는 세금계산서 기반 계좌이체 원칙. (부수수입 반납)</p>
+<p><strong>- 사업비 지원 범위:</strong></p>
+<ul>
+    <li>공과금 등 경상경비성: 10% 한도</li>
+    <li>인건비: 25% 한도 (기존 교직원 임금 인상, 명퇴금 불가)</li>
+    <li>기타 사업운영 경비: 10% 한도 (상품권, 참여 대가성 지출, 외유성 출장 불가)</li>
+</ul>
+<h4>[제2장 사업비 비목 및 세부 집행기준]</h4>
+<ul>
+    <li><strong>교육·연구프로그램 개발/운영비:</strong> 신규 교과목/강의법 개발, 특강, 실험실습비 등 집행. (산출물 대학 귀속)</li>
+    <li><strong>실험·실습기자재 구입/운영비:</strong> 3천만원~1억 미만은 자체 심의 후 연구재단 사전 승인. 자산대장 등록 및 관리 스티커 부착.</li>
+    <li><strong>교육·연구 환경 개선비:</strong> 강의실, 실습실 환경 개선 및 전산시스템. (과도한 시설비 지양)</li>
+    <li><strong>인건비:</strong> 신규 채용 및 기존 교직원 급여(총 사업비 25% 이내). 인센티브(총 사업비 5% 이내).</li>
+    <li><strong>장학금:</strong> 학부/대학원 재학생 대상. 단순 참여 대가성 불가, 별도 선발 절차 준수.</li>
+    <li><strong>기타 사업운영 경비:</strong> 여비, 일반수용비, 홍보비, 기프티콘(비즈콘 활용, 명부 구비).</li>
+</ul></div>
+            </div>
+
+            <div class="card" data-category="사업비 관리 지침">
+                <div class="card-header">
+                    <h2 class="card-title">[별표3] 특강료 지급 기준</h2>
+                    <div class="tags">
+                        <span class="tag type-지침">세부기준</span>
+                        <span class="tag category">사업비 관리 지침</span>
+                    </div>
+                </div>
+                <p class="summary">외부 기관(공무원, 사립학교 등) 및 내부 강사에 대한 일회성 및 연속성 특강료 지급 상한액과 기준을 명시합니다.</p>
+                <div class="meta">
+                    <span><strong>관련근거:</strong> 별표3 세부항목별 집행 기준</span>
+                    <div class="card-actions">
+                        <button class="btn-print" onclick="printCard(this)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                                <rect x="6" y="14" width="12" height="8"></rect>
+                            </svg> 인쇄
+                        </button>
+                        <button class="btn-toggle" onclick="toggleText(this)">보기</button>
+                    </div>
+                </div>
+                <div class="full-text-container"><h3>■ 특강료 지급 기준 (일회성)</h3>
+<p><small>※ 강의료, 원고료 및 출연료 일체 포함</small></p>
+<h4>1. 공무원, 공공기관 (1시간 기준)</h4>
+<ul>
+    <li>장관급 이상 / 차관급, 기관장: 400,000원 (초과시 600,000원 이하)</li>
+    <li>4급 이상 / 임직원: 300,000원 (초과시 450,000원 이하)</li>
+    <li>5급 이하 / 그 외 직원: 200,000원 (초과시 300,000원 이하)</li>
+</ul>
+<h4>2. 사립학교, 학교법인 및 기타기관 (1시간 / 2시간 / 2시간 초과 상한)</h4>
+<ul>
+    <li>사회 저명인사: 50만 / 100만 / 150만원 이하</li>
+    <li>학교장, 이사장 / 기관장: 30만 / 50만 / 75만원 이하</li>
+    <li>부교수 이상 / 책임급: 25만 / 40만 / 60만원 이하</li>
+    <li>전임강사 이상 / 선임급: 20만 / 30만 / 45만원 이하</li>
+    <li>그 외: 15만 / 20만 / 30만원 이하</li>
+</ul>
+<p><em>※ 2시간을 초과하는 경우 2시간 상한액의 1/2을 넘지 못함.</em></p>
+<h4>3. 내부강사 / 통역비</h4>
+<ul>
+    <li>내부강사(학점 미수반 특강만): 2시간 10만원 이하 / 2시간 초과 15만원 이하</li>
+    <li>통역비(수어 포함): 2시간 10만원 이하 / 2시간 초과 15만원 이하</li>
+</ul>
+<h4>4. 특강료 지급 기준 (연속성)</h4>
+<ul>
+    <li>비교과과정/특강 (3회 이상의 특별과정): 시간당 80,000원 이하</li>
+</ul></div>
+            </div>
+
+            <div class="card" data-category="사업비 관리 지침">
+                <div class="card-header">
+                    <h2 class="card-title">[별표3] 회의비 및 출장비 지급 기준</h2>
+                    <div class="tags">
+                        <span class="tag type-지침">세부기준</span>
+                        <span class="tag category">사업비 관리 지침</span>
+                    </div>
+                </div>
+                <p class="summary">회의 개최 시 식대, 다과비 단가 기준 및 외부인사 초청 시 예외 사항, 국내외 출장 여비 지급 기준입니다.</p>
+                <div class="meta">
+                    <span><strong>관련근거:</strong> 별표3 세부항목별 집행 기준</span>
+                    <div class="card-actions">
+                        <button class="btn-print" onclick="printCard(this)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                                <rect x="6" y="14" width="12" height="8"></rect>
+                            </svg> 인쇄
+                        </button>
+                        <button class="btn-toggle" onclick="toggleText(this)">보기</button>
+                    </div>
+                </div>
+                <div class="full-text-container"><h3>■ 회의비 지급 기준</h3>
+<ul>
+    <li>[국내] 식사비 (학생/교직원): 15,000원 이내</li>
+    <li>[국내] 다과비 (학생/교직원): 8,000원 이내</li>
+</ul>
+<p><em>※ 특수목적(외부) 사업 회의 시 경영평가팀 사전협의 후 1인 25,000원 예외 적용 가능.</em></p>
+<p><em>※ 다과와 식사 동시 준비 시 식사비(15,000원) 내에서 운영.</em></p>
+<p><em>※ 회의 참석자 기념품 구입 불가.</em></p>
+<h4>■ 출장비 지급 기준</h4>
+<ul>
+    <li>국내외 여비규정 준용.</li>
+    <li>주최측 제공 시 해당 항목 지급 불가.</li>
+    <li>증빙: 출장신청서, 출장복명서(상세 내용 필수).</li>
+</ul></div>
+            </div>
+
+            <div class="card" data-category="사업비 관리 지침">
+                <div class="card-header">
+                    <h2 class="card-title">[별표3] 위원회 심사비 및 자문료 기준</h2>
+                    <div class="tags">
+                        <span class="tag type-지침">세부기준</span>
+                        <span class="tag category">사업비 관리 지침</span>
+                    </div>
+                </div>
+                <p class="summary">각종 위원회 외부위원 수당, 대회 심사비(대표급/일반), 좌장 및 토론 수당, 자문료 단가 기준을 안내합니다.</p>
+                <div class="meta">
+                    <span><strong>관련근거:</strong> 별표3 세부항목별 집행 기준</span>
+                    <div class="card-actions">
+                        <button class="btn-print" onclick="printCard(this)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                                <rect x="6" y="14" width="12" height="8"></rect>
+                            </svg> 인쇄
+                        </button>
+                        <button class="btn-toggle" onclick="toggleText(this)">보기</button>
+                    </div>
+                </div>
+                <div class="full-text-container"><h3>■ 각종 심사비 및 위원회 외부위원 수당 지급 기준 (1회 기준)</h3>
+<ul>
+    <li>위원회 수당 (외부인사): 150,000원 이하 (교통비 포함)</li>
+    <li>심사비 (대표급): 200,000원 이하 (대표급: 5인 이상 기업체 또는 선임급 이상)</li>
+    <li>심사비 (대표급 외): 150,000원 이하</li>
+    <li>좌장 및 토론 수당: 200,000원 이하</li>
+    <li>심사비 (내부인사/교직원): 40,000원 (단순 회의 수당 불가, 심사 시에만 가능)</li>
+</ul>
+<h3>■ 자문료 지급 기준</h3>
+<ul>
+    <li>대면: 시간당 5만원 (1일 20만원, 월 70만원 이내)</li>
+    <li>비대면: 1회 5만원 (1일 1회, 월 30만원 이내)</li>
+</ul>
+<p><em>※ 자문결과자료 제출 필수. 단순 자문 또는 해당 프로그램 위원 자문료 지급 불가.</em></p></div>
+            </div>
+
+            <div class="card" data-category="사업비 관리 지침">
+                <div class="card-header">
+                    <h2 class="card-title">[별표3] 연구비 및 장학금/시상금 기준</h2>
+                    <div class="tags">
+                        <span class="tag type-지침">세부기준</span>
+                        <span class="tag category">사업비 관리 지침</span>
+                    </div>
+                </div>
+                <p class="summary">원고료, PPT, 동영상 개발 등 연구비 산출 기준과 학생 장학금, 시상금, 장애지원 보조인력 시급 단가를 명시합니다.</p>
+                <div class="meta">
+                    <span><strong>관련근거:</strong> 별표3 세부항목별 집행 기준</span>
+                    <div class="card-actions">
+                        <button class="btn-print" onclick="printCard(this)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                                <rect x="6" y="14" width="12" height="8"></rect>
+                            </svg> 인쇄
+                        </button>
+                        <button class="btn-toggle" onclick="toggleText(this)">보기</button>
+                    </div>
+                </div>
+                <div class="full-text-container"><h3>■ 교육과정(교재) 개발비 및 정책과제 연구비</h3>
+<ul>
+    <li>원고료: 20,000원/Page (규격 준수 필수, 표지/목차/간지 제외)</li>
+    <li>PPT: 10,000원/Page (표지/목차 제외)</li>
+    <li>동영상(e-러닝): 650,000원/1학점</li>
+</ul>
+<p><em>※ 최대 상한액 200만원, 저작권 대학 귀속.</em></p>
+<h3>■ 장학금 및 시상금</h3>
+<ul>
+    <li>장학금(팀): ~500,000원 / (개인): ~1,000,000원 (순위별 차등 지급)</li>
+    <li>시상금(팀): ~300,000원 / (개인): ~600,000원</li>
+    <li>상담지도(외부인): 15,000원/시급 (최대 7시간)</li>
+    <li>장애지원 보조인력: 전문가 31,000원 / 비전문가 12,500원 (시급)</li>
+</ul>
+<h3>■ 기타 학생활동 지원 / 홍보비</h3>
+<ul>
+    <li>학생 청중평가단 참여시 소정의 기념품 지급 가능 (대장 구비).</li>
+    <li>홍보비: 프로그램 홍보에 한함 (사이버 홈페이지, 리플렛, 입간판, 현수막 등).</li>
+</ul></div>
+            </div>
+
+            <!-- ================= 2. 지출 증빙 가이드라인 ================= -->
+
+            <div class="card" data-category="지출 증빙 가이드라인">
+                <div class="card-header">
+                    <h2 class="card-title">[구분별 지출 증빙] 공통 증빙 및 회의비/특강</h2>
+                    <div class="tags">
+                        <span class="tag type-가이드">가이드</span>
+                        <span class="tag category">지출 증빙 가이드라인</span>
+                    </div>
+                </div>
+                <p class="summary">지출 결제 방식(법인카드, 계좌이체)에 따른 공통 필수 서류 및 회의비, 특강/세미나 운영 시 구비해야 할 증빙자료 안내입니다.</p>
+                <div class="meta">
+                    <span><strong>관련서식:</strong> 지출 증빙 가이드</span>
+                    <div class="card-actions">
+                        <button class="btn-print" onclick="printCard(this)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                                <rect x="6" y="14" width="12" height="8"></rect>
+                            </svg> 인쇄
+                        </button>
+                        <button class="btn-toggle" onclick="toggleText(this)">보기</button>
+                    </div>
+                </div>
+                <div class="full-text-container"><h3>1. 공통 증빙자료 가이드라인</h3>
+<ul>
+    <li><strong>법인카드만 사용:</strong> 예산 품의 공문, 세부사업계획서, 사업비 집행 내역서(사업단 서식), 법인카드 영수증, 약식결과보고서.</li>
+    <li><strong>업체 계좌이체:</strong> 위 서류 + 견적서, 거래명세서, 전자세금계산서 (영수증 대체).</li>
+    <li><strong>개인 계좌이체(강사료 등):</strong> 위 서류 + 강사료 지급 내역서 등 개인 증빙 서류.</li>
+</ul>
+<h3>2. 항목별 지출 증빙 안내: 회의비 & 특강</h3>
+<ul>
+    <li><strong>회의비 (식대/다과비):</strong> 회의록, 영수증(구매내역서). 사진첨부(5인 이상 필수), 회의록 서명 확인, 회의비 단가 준수 확인.</li>
+    <li><strong>프로그램 특강/세미나:</strong> 영수증, 방명록, 사진, 구매내역, 강사 이력서, 동의서, 통장사본, 강의자료. 온라인 특강 시 시작/종료 캡쳐 필수.</li>
+</ul></div>
+            </div>
+
+            <div class="card" data-category="지출 증빙 가이드라인">
+                <div class="card-header">
+                    <h2 class="card-title">[구분별 지출 증빙] 연구비 및 물품구매/용역</h2>
+                    <div class="tags">
+                        <span class="tag type-가이드">가이드</span>
+                        <span class="tag category">지출 증빙 가이드라인</span>
+                    </div>
+                </div>
+                <p class="summary">교과목 개발 원고료, 연구보고서 등 연구비 지급 증빙과 일반 소모품, 도서, 기념품 구입 및 임차/용역 계약 시 필요 서류입니다.</p>
+                <div class="meta">
+                    <span><strong>관련서식:</strong> 지출 증빙 가이드</span>
+                    <div class="card-actions">
+                        <button class="btn-print" onclick="printCard(this)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                                <rect x="6" y="14" width="12" height="8"></rect>
+                            </svg> 인쇄
+                        </button>
+                        <button class="btn-toggle" onclick="toggleText(this)">보기</button>
+                    </div>
+                </div>
+                <div class="full-text-container"><h3>1. 연구비 (원고료)</h3>
+<ul>
+    <li>공모신청서, 심사결과보고, 최종 보고서(Full-text), 표절률 20% 미만 검사서, 저작권동의서.</li>
+</ul>
+<h3>2. 용역 및 물품구매</h3>
+<ul>
+    <li><strong>용역:</strong> 계약서, 제안서, 사업자증, 세금계산서, 이행완료보고서.</li>
+    <li><strong>물품:</strong> 견적서, 거래명세서, 영수증, 물품검수조서(인수/검수 서명 다를 것), 물품사진.</li>
+    <li><strong>기념품:</strong> 수령대장 필수, 3만원 내외, 상세내역서, 잔여물품 계획서.</li>
+</ul></div>
+            </div>
+
+            <div class="card" data-category="지출 증빙 가이드라인">
+                <div class="card-header">
+                    <h2 class="card-title">[구분별 지출 증빙] 학생지원 (여비/참가비) 및 증빙 FAQ</h2>
+                    <div class="tags">
+                        <span class="tag type-가이드">가이드</span>
+                        <span class="tag category">지출 증빙 가이드라인</span>
+                    </div>
+                </div>
+                <p class="summary">학생 출장/교통비, 교육참가비 증빙 서류 가이드와 사업비 집행 실무 시 자주 묻는 질문(FAQ) 및 오류 수정 사례입니다.</p>
+                <div class="meta">
+                    <span><strong>관련서식:</strong> 지출 증빙 가이드 & FAQ</span>
+                    <div class="card-actions">
+                        <button class="btn-print" onclick="printCard(this)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                                <rect x="6" y="14" width="12" height="8"></rect>
+                            </svg> 인쇄
+                        </button>
+                        <button class="btn-toggle" onclick="toggleText(this)">보기</button>
+                    </div>
+                </div>
+                <div class="full-text-container"><h3>1. 학생 여비 및 참가비</h3>
+<ul>
+    <li><strong>교통비:</strong> 영수증, 티켓, 상세 결과보고서(현장사진).</li>
+    <li><strong>참가비:</strong> 견적서, 영수증, 방명록.</li>
+</ul>
+<h3>2. 주요 수정 사례 (반려 요인)</h3>
+<ul>
+    <li>날짜/금액 불일치, 물품검수조서 서명 중복, 회의비 단가 초과.</li>
+    <li>결과보고서 양식 미사용, 추진내용 부실, 참여인원 불일치.</li>
+</ul>
+<h3>3. FAQ 요약</h3>
+<ul>
+    <li><strong>기념품:</strong> 33,000원(부가세/배송비 포함) 이내.</li>
+    <li><strong>사진:</strong> 품목 전체가 보이도록 촬영.</li>
+    <li><strong>개인카드:</strong> 절대 불가(법인 클린카드/계좌이체 원칙).</li>
+    <li><strong>자산 구분:</strong> 10만원 이상 혹은 수선 가능 시 자산.</li>
+    <li><strong>회의비:</strong> 교직원끼리 단순 협의 식대 불가.</li>
+</ul></div>
+            </div>
+
+            <!-- ================= 3. 결재 협조라인 ================= -->
+
+            <div class="card" data-category="결재 협조라인">
+                <div class="card-header">
+                    <h2 class="card-title">사업비 결재 협조라인 안내</h2>
+                    <div class="tags">
+                        <span class="tag type-가이드">안내</span>
+                        <span class="tag category">결재 협조라인</span>
+                    </div>
+                </div>
+                <p class="summary">예산 기획(품의) 및 집행(지출결의) 시 거쳐야 하는 필수 결재 순서와 금액별 최종 결재권자 안내입니다.</p>
+                <div class="meta">
+                    <div class="card-actions">
+                        <button class="btn-print" onclick="printCard(this)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                                <rect x="6" y="14" width="12" height="8"></rect>
+                            </svg> 인쇄
+                        </button>
+                        <button class="btn-toggle" onclick="toggleText(this)">보기</button>
+                    </div>
+                </div>
+                <div class="full-text-container"><h3>1. 예산 기획 [품의] 협조</h3>
+<p><strong>라인:</strong> 담당자 기안 → (부서 내) 검토 → <strong>(사업단 협조) 정주희 담당 → 김태훈 팀장 → 남영우 단장</strong> → 최종 결재자</p>
+<ul>
+    <li>100만원 이하: 부서팀장/센터장</li>
+    <li>300만원 이상 500만원 미만: 부서장(처·실장/학과장)</li>
+    <li>500만원 이상: 총장 (※ 경영평가팀 예산 협조 필수: 사업단 협조 후 → 예산담당자 → 기획처 처장 → 총장 결재)</li>
+</ul>
+<h3>2. 예산 집행 [지출결의] 협조</h3>
+<p><strong>라인:</strong> 담당자 기안 → (부서 내) 검토 → <strong>(사업단 협조) 신다해 담당</strong> → 부서 최종 결재 (수신처: 재무팀)</p>
+<ul>
+    <li>500만원 이하: 부서팀장/센터장</li>
+    <li>500만원 초과: 부서장(처·실장/학과장)</li>
+</ul>
+<p>** 위임전결 기준에 따른 예산기획/집행 협조 순서 참조.</p></div>
+            </div>
+
+            <div class="no-results" id="noResults">해당 카테고리의 규정/지침이 없습니다.</div>
+        </div>
+    </div>
+
+    <script>
+        // Filtering Logic
+        const buttons = document.querySelectorAll('.filter-btn');
+        const cards = document.querySelectorAll('.card');
+        const noResults = document.getElementById('noResults');
+
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                buttons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+
+                const filterValue = button.getAttribute('data-filter');
+                let visibleCount = 0;
+
+                cards.forEach(card => {
+                    if (filterValue === 'all' || card.getAttribute('data-category') === filterValue) {
+                        card.style.display = 'flex';
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+            });
+        });
+
+        // Toggle Full Text Logic
+        function toggleText(btn) {
+            const card = btn.closest('.card');
+            const content = card.querySelector('.full-text-container');
+            const printBtn = card.querySelector('.btn-print');
+            
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+                btn.innerText = '보기';
+                printBtn.style.display = 'none';
+            } else {
+                content.classList.add('active');
+                btn.innerText = '접기';
+                printBtn.style.display = 'flex';
+            }
+        }
+
+        // Print Card Logic
+        function printCard(btn) {
+            const card = btn.closest('.card');
+            document.body.classList.add('printing-card');
+            card.classList.add('print-target');
+            window.print();
+            
+            setTimeout(() => {
+                document.body.classList.remove('printing-card');
+                card.classList.remove('print-target');
+            }, 500);
+        }
+    </script>
+</body>
+</html>
