@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>나사렛대학교 CTL 4대 사업 체계 — Kinetic Typography</title>
+<title>나사렛대학교 CTL 업무현황</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Unbounded:wght@400;600;800;900&display=swap" rel="stylesheet">
@@ -406,8 +406,20 @@ function wake(){ui.classList.remove("idle");clearTimeout(idleT);idleT=setTimeout
 
 go(0); requestAnimationFrame(tick);
 
-/* ================= WEEKLY CALENDAR (Google Calendar via viewer's connector) ================= */
-const CAL = { server:"Google Calendar", tool:"list_events", id:"kornuctl@gmail.com", tz:"Asia/Seoul" };
+/* =====================================================================
+   ★ 설정 (여기만 바꾸면 됩니다) ★
+   API_KEY     : Google Cloud에서 발급한 API 키 (Google Calendar API 전용으로 제한 권장)
+   CALENDAR_ID : 공개로 설정한 캘린더 ID (설정 → 캘린더 통합 → 캘린더 ID)
+   HIDE_WORDS  : 제목에 이 단어가 들어간 일정은 화면에 표시하지 않음
+   REFRESH_MIN : 자동 새로고침 간격(분)
+   ===================================================================== */
+const CONFIG = {
+  API_KEY:     "AIzaSyATU2T_Rxa-Bc6SvjueYx35oPY9LPrpR8I",
+  CALENDAR_ID: "kornuctl@gmail.com",
+  HIDE_WORDS:  ["조퇴"],
+  REFRESH_MIN: 5
+};
+const CAL = { tz:"Asia/Seoul" };
 const DOW = ["일","월","화","수","목","금","토"];
 const GCOLOR = {"1":"#7986CB","2":"#33B679","3":"#8E24AA","4":"#E67C73","5":"#F6BF26","6":"#F4511E","7":"#039BE5","8":"#616161","9":"#3F51B5","10":"#0B8043","11":"#D50000"};
 const calBody=document.getElementById("calBody"), calRange=document.getElementById("calRange"), calStamp=document.getElementById("calStamp");
@@ -422,7 +434,7 @@ function weekDays(){
   const mon = w===0 ? addDays(today,1) : w===6 ? addDays(today,2) : addDays(today,1-w);
   return [0,1,2,3,4].map(i=>addDays(mon,i));
 }
-let calData=null, calWeekKey="", calUnsub=null, calMcp=null, calAnimated=false;
+let calData=null, calAnimated=false;
 
 function groupEvents(events, days){
   const map={}; days.forEach(d=>map[d]=[]);
@@ -464,49 +476,47 @@ function renderCal(){
   const t=calBody.querySelector(".day.today"); if(t && anim) t.scrollIntoView({block:"nearest"});
 }
 
+
 function calMessage(title, body, btn){
   calBody.innerHTML=`<div class="cal-msg"><b>${title}</b>${body}${btn?`<br><button id="calAct">${btn.label}</button>`:""}</div>`;
   if(btn) document.getElementById("calAct").onclick=btn.fn;
 }
+function configured(){ return CONFIG.API_KEY && !CONFIG.API_KEY.startsWith("여기에") && CONFIG.CALENDAR_ID && !CONFIG.CALENDAR_ID.startsWith("여기에"); }
 
-function calError(err){
-  const c=err?.code;
-  if(["needs_reauth"].includes(c)){ calData=null; calMessage("구글 캘린더 재연결 필요","claude.ai 설정 → 커넥터에서 Google Calendar를 다시 연결해 주세요."); }
-  else if(["server_not_connected","selection_required","server_not_found"].includes(c)){ calData=null; calMessage("구글 캘린더가 연결되지 않았어요","claude.ai 설정 → 커넥터에서 Google Calendar를 추가하면 센터 일정이 표시됩니다."); }
-  else if(c==="approval_required"){ calData=null; calMessage("캘린더 접근 허용이 필요해요","아래 버튼을 눌러 이 페이지가 일정을 읽도록 허용해 주세요.",{label:"일정 불러오기",fn:()=>oneShot()}); }
-  else if(["not_in_manifest","blocked_by_policy","not_granted","capability_disabled","capability_removed","consent_required"].includes(c)){ calData=null; calMessage("이 화면에서는 일정을 볼 수 없어요","캘린더 접근이 허용되지 않았거나 지원되지 않는 보기입니다. claude.ai에서 페이지를 열어 주세요."); }
-  else if(c==="tool_error"){ if(!calData) calMessage("일정을 불러오지 못했어요", esc(err.message||"센터 공용캘린더 접근 권한을 확인해 주세요.")); calStamp.textContent="불러오기 실패"; }
-  else { if(!calData) calMessage("잠시 연결이 원활하지 않아요","잠시 후 자동으로 다시 시도합니다."); calStamp.textContent="연결 지연 · 이전 데이터 표시"; }
+let calTimer=null, loading=false;
+async function loadCal(){
+  if(loading) return; loading=true;
+  const days=weekDays();
+  const q=new URLSearchParams({
+    key:CONFIG.API_KEY, singleEvents:"true", orderBy:"startTime", maxResults:"250", timeZone:CAL.tz,
+    timeMin:`${days[0]}T00:00:00+09:00`, timeMax:`${addDays(days[4],1)}T00:00:00+09:00`
+  });
+  const url=`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CONFIG.CALENDAR_ID)}/events?${q}`;
+  try{
+    const r=await fetch(url,{cache:"no-store"});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok){
+      const st=r.status, msg=j?.error?.message||"";
+      if(!calData){
+        if(st===404) calMessage("캘린더를 찾을 수 없어요","CALENDAR_ID가 맞는지, 캘린더가 <b style='display:inline'>공개</b>로 설정돼 있는지 확인해 주세요.");
+        else if(st===403 && /referer|referrer/i.test(msg)) calMessage("이 주소에서는 API 키를 쓸 수 없어요","API 키의 웹사이트 제한에 지금 페이지 주소를 추가해 주세요.");
+        else if(st===403 || st===400) calMessage("API 키를 확인해 주세요","키가 올바른지, Google Calendar API가 사용 설정됐는지 확인해 주세요.<br><small>"+esc(msg)+"</small>");
+        else calMessage("일정을 불러오지 못했어요",esc(msg||("HTTP "+st)));
+      }
+      calStamp.textContent="불러오기 실패"+(calData?" · 이전 데이터 표시":"");
+      return;
+    }
+    const hide=(CONFIG.HIDE_WORDS||[]).filter(Boolean);
+    calData={events:(j.items||[]).filter(e=>!hide.some(w=>(e.summary||"").includes(w)))};
+    calStamp.textContent=`업데이트 ${seoul(new Date()).hm}`;
+    renderCal();
+  }catch(e){
+    if(!calData) calMessage("네트워크에 연결할 수 없어요","인터넷 연결을 확인해 주세요. 자동으로 다시 시도합니다.");
+    calStamp.textContent="연결 지연"+(calData?" · 이전 데이터 표시":"");
+  }finally{ loading=false; }
 }
 
-function stamp(result){
-  const ts = result?.cache?.storedAt ? new Date(result.cache.storedAt) : new Date();
-  calStamp.textContent = `업데이트 ${seoul(ts).hm}`;
-}
-
-function calInput(days){ return { calendarId:CAL.id, startTime:`${days[0]}T00:00:00`, endTime:`${addDays(days[4],1)}T00:00:00`, orderBy:"startTime", pageSize:100 }; }
-
-function watchWeek(){
-  const days=weekDays(), key=days[0];
-  if(key===calWeekKey && calUnsub) return;
-  calWeekKey=key; if(calUnsub) calUnsub(); calData=null; calAnimated=false;
-  renderCal();
-  calUnsub = calMcp.watchTool(CAL.server, CAL.tool, calInput(days), ev=>{
-    if(ev.type==="data"){ calData = ev.result.payload || {}; stamp(ev.result); renderCal(); }
-    else calError(ev.error);
-  }, { cache:{staleTime:120000, gcTime:86400000}, refetchInterval:300000 });
-}
-
-async function oneShot(){
-  try{ const r=await calMcp.callTool(CAL.server, CAL.tool, calInput(weekDays()), {cache:{refresh:true}}); calData=r.payload||{}; stamp(r); calAnimated=false; renderCal(); }
-  catch(e){ calError(e); }
-}
-
-document.getElementById("calRefresh").onclick=()=>{
-  if(!calMcp) return;
-  calStamp.textContent="새로고침 중…";
-  calMcp.invalidate(CAL.server, CAL.tool).catch(()=>oneShot());
-};
+document.getElementById("calRefresh").onclick=()=>{ calStamp.textContent="새로고침 중…"; loadCal(); };
 document.getElementById("calToggle").onclick=()=>{
   const closed=document.body.classList.toggle("sb-closed");
   document.getElementById("calToggle").setAttribute("aria-expanded",String(!closed));
@@ -514,15 +524,17 @@ document.getElementById("calToggle").onclick=()=>{
 };
 addEventListener("keydown",e=>{ if(e.key.toLowerCase()==="c") document.getElementById("calToggle").click(); });
 
+let lastWeek=weekDays()[0];
 renderCal();
-(async()=>{
-  const use = window.claude && window.claude.use;
-  calMcp = use ? await window.claude.use("mcp").catch(()=>null) : null;
-  if(!calMcp){ calMessage("일정 연동을 사용할 수 없는 화면이에요","claude.ai에서 이 페이지를 열면 센터 공용캘린더 주간일정이 표시됩니다."); calStamp.textContent="연동 꺼짐"; return; }
-  watchWeek();
-  setInterval(()=>{ watchWeek(); renderCal(); }, 60000); // 진행 중 표시·주 변경 반영
-})();
-
+if(!configured()){
+  calMessage("캘린더 설정이 필요해요","HTML 파일 상단의 <b style='display:inline'>CONFIG</b>에 API 키와 캘린더 ID를 입력해 주세요.");
+  calStamp.textContent="설정 전";
+}else{
+  loadCal();
+  setInterval(loadCal, Math.max(1,CONFIG.REFRESH_MIN)*60000);
+  setInterval(()=>{ const w=weekDays()[0]; if(w!==lastWeek){ lastWeek=w; calData=null; loadCal(); } else renderCal(); },60000);
+  document.addEventListener("visibilitychange",()=>{ if(!document.hidden) loadCal(); });
+}
 </script>
 </body>
 </html>
