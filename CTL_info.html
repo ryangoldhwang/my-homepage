@@ -172,9 +172,37 @@ body.sb-closed #calToggle svg{transform:rotate(180deg)}
 .cal-title{font-size:15px;font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;gap:6px}
 .cal-title i{width:6px;height:6px;border-radius:50%;background:#00F5A0;box-shadow:0 0 6px #00F5A0}
 .cal-range{font-size:11.5px;color:#8A8F9C}
+.yt{flex:none;padding:10px 10px 9px;border-bottom:1px solid rgba(255,255,255,.06)}
+.yt.bottom{border-bottom:0;border-top:1px solid rgba(255,255,255,.06)}
+.yt-h{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:800;margin-bottom:7px}
+.yt-h i{width:16px;height:11px;border-radius:3px;background:#FF0033;position:relative;flex:none}
+.yt-h i::after{content:"";position:absolute;left:6px;top:3px;border-left:5px solid #fff;border-top:2.5px solid transparent;border-bottom:2.5px solid transparent}
+.yt-h span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.yt-h a,.yt-h button{all:unset;cursor:pointer;font-size:10.5px;font-weight:600;color:#9BA0AB;padding:2px 8px;border-radius:10px;border:1px solid rgba(255,255,255,.14);white-space:nowrap}
+.yt-h a:hover,.yt-h button:hover,.yt-h a:focus-visible,.yt-h button:focus-visible{color:#fff}
+.yt-frame{position:relative;border-radius:10px;overflow:hidden;background:#000;width:100%;height:200px}
+.yt-frame.v{width:auto;aspect-ratio:9/16;height:min(52vh,560px);margin:0 auto}
+.yt-frame iframe,.yt-frame>div{position:absolute;inset:0;width:100%!important;height:100%!important;border:0}
+.yt-now{display:flex;align-items:center;gap:8px;margin-top:7px;font-size:11.5px;color:#C8CBD3;min-height:16px}
+.yt-now b{flex:none;font-size:9.5px;font-weight:800;letter-spacing:.08em;color:#00F5A0}
+.yt-now span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.yt-ctl{display:flex;align-items:center;gap:4px;margin-top:6px}
+.yt-ctl button{all:unset;cursor:pointer;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#dfe2e8}
+.yt-ctl button:hover,.yt-ctl button:focus-visible{background:rgba(255,255,255,.1)}
+.yt-ctl button.main{width:36px;height:36px;background:linear-gradient(135deg,#FF3D6E,#FF0033);color:#fff}
+.yt-ctl button.on{color:#00F5A0}
+.yt-ctl svg{width:15px;height:15px;fill:currentColor}
+.yt-ctl input[type=range]{flex:1;min-width:60px;accent-color:#FF3D6E;height:4px}
+.yt-hint{margin-top:5px;font-size:10.5px;color:#7C818D;line-height:1.45}
+.yt.min .yt-frame,.yt.min .yt-ctl,.yt.min .yt-now,.yt.min .yt-hint{display:none}
+.yt.min .yt-h{margin-bottom:0}
 .cal-body{flex:1;overflow-y:auto;padding:0 8px 6px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.15) transparent}
+.wk-sep{display:flex;align-items:center;gap:8px;margin:10px 4px 2px;font-size:10px;font-weight:800;letter-spacing:.12em;color:#7C818D}
+.wk-sep.first{margin-top:6px}
+.wk-sep::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.1)}
 .day{padding:5px 4px 3px;border-bottom:1px solid rgba(255,255,255,.05)}
 .day.past{opacity:.45}
+.day.empty{padding-top:3px;padding-bottom:3px}
 .day.today{background:rgba(0,224,255,.07);border-radius:8px;border-bottom-color:transparent;box-shadow:inset 2px 0 0 #00E0FF}
 .day-h{display:flex;align-items:baseline;gap:6px;padding:2px 4px 2px}
 .day-h b{font-size:12.5px;font-weight:800}
@@ -222,10 +250,12 @@ body.sb-closed #calToggle svg{transform:rotate(180deg)}
 <div id="viewport"><div id="stage" aria-live="polite"></div></div>
 
 
-<aside id="cal" aria-label="센터 주간일정">
+<aside id="cal" aria-label="센터 2주 일정">
   <button id="calToggle" aria-label="주간일정 접기/펼치기" aria-expanded="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6-1.4-1.4L12.2 12 7.6 7.4z"/></svg></button>
-  <div class="cal-head"><div class="cal-title"><i></i>센터 주간일정</div><div class="cal-range" id="calRange"></div></div>
+  <div id="ytTop"></div>
+  <div class="cal-head"><div class="cal-title"><i></i>센터 일정 · 2주</div><div class="cal-range" id="calRange"></div></div>
   <div class="cal-body" id="calBody"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+  <div id="ytBottom"></div>
   <div class="cal-foot"><a href="https://knuctl.kornu.ac.kr" target="_blank" rel="noopener">knuctl.kornu.ac.kr</a><span id="calStamp">불러오는 중…</span><button id="calRefresh">새로고침</button></div>
 </aside>
 
@@ -426,7 +456,26 @@ const CONFIG = {
   API_KEY:     "AIzaSyATU2T_Rxa-Bc6SvjueYx35oPY9LPrpR8I",
   CALENDAR_ID: "kornuctl@gmail.com",
   HIDE_WORDS:  ["조퇴"],
-  REFRESH_MIN: 5
+  REFRESH_MIN: 5,
+
+  /* ♪ 유튜브 음악 플레이어 (URL을 비워 두면 표시 안 함)
+     URL      : 재생목록 주소를 그대로 붙여 넣기 (영상·쇼츠 주소도 가능)
+                예) https://www.youtube.com/playlist?list=PLXXXX
+                    https://music.youtube.com/playlist?list=PLXXXX
+                ※ 재생목록은 '공개' 또는 '일부 공개'여야 합니다(비공개는 재생 불가).
+     TITLE    : 플레이어 위에 표시할 제목
+     POSITION : "top"(일정 위) 또는 "bottom"(일정 아래)
+     SHUFFLE  : true = 처음부터 무작위 재생
+     VOLUME   : 시작 볼륨 0~100
+     AUTOPLAY : false 권장 — 브라우저는 소리 있는 자동재생을 막으므로 ▶ 버튼으로 시작 */
+  YOUTUBE: {
+    URL:      "",
+    TITLE:    "CTL 업무 BGM",
+    POSITION: "bottom",
+    SHUFFLE:  false,
+    VOLUME:   40,
+    AUTOPLAY: false
+  }
 };
 const CAL = { tz:"Asia/Seoul" };
 const DOW = ["일","월","화","수","목","금","토"];
@@ -439,9 +488,9 @@ function addDays(ymd,n){ const d=new Date(ymd+"T00:00:00Z"); d.setUTCDate(d.getU
 function dow(ymd){ return new Date(ymd+"T00:00:00Z").getUTCDay(); }
 function weekDays(){
   const today=seoul(new Date()).ymd, w=dow(today);
-  // Mon–Fri of this week; on Sat/Sun show the coming week
+  // 이번 주 + 다음 주 평일(월–금 ×2). 토·일에는 다가오는 주부터 2주
   const mon = w===0 ? addDays(today,1) : w===6 ? addDays(today,2) : addDays(today,1-w);
-  return [0,1,2,3,4].map(i=>addDays(mon,i));
+  return [0,1,2,3,4,7,8,9,10,11].map(i=>addDays(mon,i));
 }
 let calData=null, calAnimated=false;
 
@@ -466,7 +515,7 @@ function groupEvents(events, days){
 function renderCal(){
   const days=weekDays(), now=new Date(), today=seoul(now).ymd;
   const f=d=>{const [y,m,dd]=d.split("-");return `${+m}.${+dd}(${DOW[dow(d)]})`;};
-  calRange.textContent=`${f(days[0])} – ${f(days[4])}`;
+  calRange.textContent=`${f(days[0])} – ${f(days[days.length-1])}`;
   if(!calData) return;
   const map=groupEvents(calData.events, days);
   const anim=!calAnimated; calAnimated=true;
@@ -478,9 +527,10 @@ function renderCal(){
       else { t=`${seoul(st).hm}–${seoul(en).hm}`; if(now>=st&&now<en) state="now"; else if(now>=en) state="done"; }
       const c = GCOLOR[e.colorId] || "#7C5CFF";
       return `<div class="ev ${state}" style="--ec:${c}"><span class="t">${t}</span><span class="n">${esc(e.summary||"(제목 없음)")}</span></div>`;
-    }).join("") || `<div class="none">일정 없음</div>`;
+    }).join("");
     const [,m,dd]=d.split("-");
-    return `<section class="day ${cls}"><div class="day-h"><b>${+m}/${+dd} (${DOW[dow(d)]})</b><span>${map[d].length}건</span>${d===today?"<em>TODAY</em>":""}</div>${items}</section>`;
+    const sep = i===5 ? `<div class="wk-sep"><span>다음 주</span></div>` : (i===0 ? `<div class="wk-sep first"><span>이번 주</span></div>` : "");
+    return sep+`<section class="day ${cls} ${map[d].length?"":"empty"}"><div class="day-h"><b>${+m}/${+dd} (${DOW[dow(d)]})</b><span>${map[d].length?map[d].length+"건":"일정 없음"}</span>${d===today?"<em>TODAY</em>":""}</div>${items}</section>`;
   }).join("");
   const t=calBody.querySelector(".day.today"); if(t && anim) t.scrollIntoView({block:"nearest"});
 }
@@ -498,7 +548,7 @@ async function loadCal(){
   const days=weekDays();
   const q=new URLSearchParams({
     key:CONFIG.API_KEY, singleEvents:"true", orderBy:"startTime", maxResults:"250", timeZone:CAL.tz,
-    timeMin:`${days[0]}T00:00:00+09:00`, timeMax:`${addDays(days[4],1)}T00:00:00+09:00`
+    timeMin:`${days[0]}T00:00:00+09:00`, timeMax:`${addDays(days[days.length-1],1)}T00:00:00+09:00`
   });
   const url=`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CONFIG.CALENDAR_ID)}/events?${q}`;
   try{
@@ -532,6 +582,88 @@ document.getElementById("calToggle").onclick=()=>{
   setTimeout(fit,460);
 };
 addEventListener("keydown",e=>{ if(e.key.toLowerCase()==="c") document.getElementById("calToggle").click(); });
+
+
+/* ================= YOUTUBE (calendar bar) ================= */
+function parseYT(u){
+  try{
+    const url=new URL(u.trim()); const h=url.hostname.replace(/^www\.|^m\./,"");
+    const list=url.searchParams.get("list");
+    let id=null, shorts=false;
+    if(h==="youtu.be") id=url.pathname.slice(1).split("/")[0];
+    else if(/youtube(-nocookie)?\.com$/.test(h)){
+      const p=url.pathname.split("/").filter(Boolean);
+      if(p[0]==="watch") id=url.searchParams.get("v");
+      else if(["shorts","embed","live","v"].includes(p[0])){ id=p[1]; shorts=p[0]==="shorts"; }
+    }
+    if(id && !/^[\w-]{6,20}$/.test(id)) id=null;
+    if(list && !/^[\w-]{10,64}$/.test(list)) return id?{id,shorts}:null;
+    return (id||list)?{id,list,shorts}:null;
+  }catch(e){ return null; }
+}
+(function initYT(){
+  const Y=CONFIG.YOUTUBE||{}; if(!Y.URL) return;
+  const host=document.getElementById(Y.POSITION==="top"?"ytTop":"ytBottom");
+  const v=parseYT(Y.URL);
+  if(!v){ host.innerHTML=`<div class="yt"><div class="cal-msg" style="margin:0"><b>유튜브 주소를 확인해 주세요</b>CONFIG의 YOUTUBE.URL에 재생목록이나 영상 주소를 넣어 주세요.</div></div>`; return; }
+  const LOGIN="https://accounts.google.com/ServiceLogin?service=youtube&continue="+encodeURIComponent("https://www.youtube.com/");
+  const I={prev:'<path d="M6 5h2v14H6zM20 5v14L9 12z"/>',next:'<path d="M16 5h2v14h-2zM4 5v14l11-7z"/>',play:'<path d="M7 4v16l13-8z"/>',pause:'<path d="M6 5h4v14H6zm8 0h4v14h-4z"/>',
+    shuf:'<path d="M14.8 4H20v5.2l-1.9-1.9-4.1 4.1-1.4-1.4 4.1-4.1zM4 5.4 5.4 4 20 18.6 18.6 20zM14 15.4l1.4-1.4 2.7 2.7L20 14.8V20h-5.2l1.9-1.9z"/>',
+    vol:'<path d="M4 9h4l5-4v14l-5-4H4zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/>',mute:'<path d="M4 9h4l5-4v14l-5-4H4zm12.6-.4 1.4-1.4 2 2 2-2 1.4 1.4-2 2 2 2-1.4 1.4-2-2-2 2-1.4-1.4 2-2z"/>'};
+  const ic=n=>`<svg viewBox="0 0 24 24">${I[n]}</svg>`;
+  let collapsed=false; try{ collapsed=localStorage.getItem("ctlYtMin")==="1"; }catch(e){}
+  host.innerHTML=`<div class="yt ${Y.POSITION==="top"?"":"bottom"} ${collapsed?"min":""}">
+    <div class="yt-h"><i></i><span>${esc(Y.TITLE||"YouTube 음악")}</span>
+      <a href="${LOGIN}" target="_blank" rel="noopener" title="새 탭에서 YouTube 로그인">로그인</a>
+      <button type="button" data-k="min" aria-expanded="${!collapsed}">${collapsed?"펼치기":"접기"}</button></div>
+    <div class="yt-frame ${v.shorts&&!v.list?"v":""}"><div id="ytPlayer"></div></div>
+    <div class="yt-now"><b>NOW</b><span id="ytNow">▶ 버튼을 눌러 재생하세요</span></div>
+    <div class="yt-ctl">
+      <button type="button" data-k="prev" aria-label="이전 곡">${ic("prev")}</button>
+      <button type="button" data-k="play" class="main" aria-label="재생">${ic("play")}</button>
+      <button type="button" data-k="next" aria-label="다음 곡">${ic("next")}</button>
+      <button type="button" data-k="shuf" aria-label="무작위 재생" aria-pressed="false">${ic("shuf")}</button>
+      <button type="button" data-k="mute" aria-label="음소거">${ic("vol")}</button>
+      <input type="range" min="0" max="100" value="${Math.max(0,Math.min(100,+Y.VOLUME||40))}" aria-label="볼륨">
+    </div>
+    <div class="yt-hint">로그인은 새 탭에서 진행돼요. 로그인 후 이 페이지를 새로고침하면 플레이어에 반영됩니다.</div></div>`;
+  const box=host.firstElementChild, $=k=>box.querySelector(`[data-k="${k}"]`), vol=box.querySelector('input[type=range]'), now=box.querySelector("#ytNow");
+  let player=null, ready=false, shuffle=!!Y.SHUFFLE, playing=false;
+  const setPlayIcon=()=>{ $("play").innerHTML=ic(playing?"pause":"play"); $("play").setAttribute("aria-label",playing?"일시정지":"재생"); };
+  const setShuf=()=>{ $("shuf").classList.toggle("on",shuffle); $("shuf").setAttribute("aria-pressed",String(shuffle)); };
+  const setMuteIcon=()=>{ const m=player&&ready&&player.isMuted(); $("mute").innerHTML=ic(m?"mute":"vol"); };
+  setShuf();
+  function build(){
+    const pv={playsinline:1,rel:0,autoplay:Y.AUTOPLAY?1:0,origin:location.origin};
+    const opts={width:"100%",height:"100%",host:"https://www.youtube.com",playerVars:pv,events:{
+      onReady:()=>{ ready=true; player.setVolume(+vol.value); if(shuffle&&v.list) player.setShuffle(true); setMuteIcon(); },
+      onStateChange:e=>{ playing=e.data===1||e.data===3; setPlayIcon(); const d=player.getVideoData&&player.getVideoData(); if(d&&d.title) now.textContent=d.title+(d.author?` · ${d.author}`:""); },
+      onError:e=>{ const m={2:"주소 형식이 올바르지 않아요",5:"이 브라우저에서 재생할 수 없어요",100:"삭제됐거나 비공개인 영상이에요",101:"퍼가기가 허용되지 않은 곡이에요",150:"퍼가기가 허용되지 않은 곡이에요",153:"재생 정보 확인에 실패했어요"}[e.data]||"재생 오류";
+        now.textContent=`${m} — 다음 곡으로 넘어갑니다`; if(v.list) setTimeout(()=>player.nextVideo(),1500); }
+    }};
+    if(v.list){ pv.listType="playlist"; pv.list=v.list; if(v.id) opts.videoId=v.id; } else { opts.videoId=v.id; pv.loop=1; pv.playlist=v.id; }
+    player=new YT.Player("ytPlayer",opts);
+  }
+  function loadAPI(){
+    if(window.YT&&YT.Player) return build();
+    const prev=window.onYouTubeIframeAPIReady; window.onYouTubeIframeAPIReady=()=>{ prev&&prev(); build(); };
+    const sc=document.createElement("script"); sc.src="https://www.youtube.com/iframe_api"; sc.onerror=()=>{ now.textContent="유튜브에 연결할 수 없어요 (네트워크 확인)"; }; document.head.appendChild(sc);
+  }
+  if(!collapsed) loadAPI();
+  $("play").onclick=()=>{ if(!ready) return; playing?player.pauseVideo():player.playVideo(); };
+  $("prev").onclick=()=>ready&&player.previousVideo();
+  $("next").onclick=()=>ready&&player.nextVideo();
+  $("shuf").onclick=()=>{ shuffle=!shuffle; setShuf(); if(ready&&v.list) player.setShuffle(shuffle); };
+  $("mute").onclick=()=>{ if(!ready) return; player.isMuted()?player.unMute():player.mute(); setTimeout(setMuteIcon,50); };
+  vol.oninput=()=>{ if(ready){ player.setVolume(+vol.value); if(+vol.value>0&&player.isMuted()) player.unMute(); setMuteIcon(); } };
+  $("min").onclick=()=>{
+    collapsed=!collapsed; box.classList.toggle("min",collapsed);
+    $("min").textContent=collapsed?"펼치기":"접기"; $("min").setAttribute("aria-expanded",String(!collapsed));
+    if(collapsed){ if(ready) player.pauseVideo(); }   // 플레이어를 가리면 재생도 멈춤
+    else if(!player) loadAPI();
+    try{ localStorage.setItem("ctlYtMin",collapsed?"1":"0"); }catch(e){}
+  };
+})();
 
 let lastWeek=weekDays()[0];
 renderCal();
